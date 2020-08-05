@@ -3,7 +3,10 @@
 # PWA needs
 manifest
 service worker
+IndexedDB
 
+
+service worker script for HTML:
 ```
 <script>
     if ("serviceWorker" in navigator) {
