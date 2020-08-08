@@ -1,7 +1,7 @@
-const request = window.indexedDB.open("budget", 1);
 let db;
+const request = window.indexedDB.open("budget", 1);
 
-request.onupgradeneeded = function(event){
+request.onupgradeneeded = function(event) {
     const db = event.target.result;
     db.createObjectStore("transactions", {autoIncrement: true});
 }
@@ -9,7 +9,7 @@ request.onupgradeneeded = function(event){
 request.onsuccess = function(event) {
     db = event.target.result;
 
-    if (navigator.onLine){
+    if (navigator.onLine) {
         checkDatabase();
     }
 }
@@ -18,7 +18,7 @@ request.onerror = function(event) {
     console.log("Error" + event.target.errorCode);
 }
 
-function saveRecord(transactionRecord){
+function saveRecord(transactionRecord) {
     console.log(transactionRecord);
     const transaction = db.transaction(["transactions"], "readwrite");
     const transactionStore = transaction.objectStore("transactions");
@@ -29,28 +29,25 @@ function saveRecord(transactionRecord){
 function checkDatabase() {
     const transaction = db.transaction(["transactions"], "readwrite");
     const transactionStore = transaction.objectStore("transactions");
-    const getRequest = transactionStore.getAll();
-    getRequest.onsuccess = () => {
-        console.log(getRequest.result);
-    }
+    const getAll = transactionStore.getAll();
 
-    fetch("/api/transaction/bulk", {
-        method: "POST",
-        body: JSON.stringify(getRequest.result),
-        headers: {
-            Accept: "application/json, text/plain, */*",
-            "content-Type": "application/json"
+    getAll.onsuccess = function() {
+        if(getAll.result.length > 0) {
+            fetch("/api/transaction/bulk", {
+                method: "POST",
+                body: JSON.stringify(getAll.result),
+                headers: {
+                    Accept: "application/json, text/plain, */*",
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => {
+                const transaction = db.transaction(["transactions"], "readwrite");
+                const transactionStore = transaction.objectStore("transactions");
+                transactionStore.clear();
+            });
         }
-    })
-    .then(response => {
-        return response.json();
-        transactionStore.clear();
-    })
-    .then(data => {
-        if (err){
-            throw err;
-        }else{
+    };
+};
 
-        }
-    });
-}
+window.addEventListener("online",checkDatabase);
