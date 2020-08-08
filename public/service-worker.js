@@ -1,5 +1,3 @@
-console.log("Service worker is running.");
-
 const FILES_TO_CACHE = [
     "/",
     "/index.html",
@@ -67,5 +65,3 @@ self.addEventListener("install", function(evt) {
       })
     );
   });
-  
-  
